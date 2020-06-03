@@ -92,7 +92,7 @@ if vid_pos == -1:
 vid = content[vid_pos+4 : vid_pos+36].decode("utf-8")
 
 # download non-watermarked file
-content = download(f"https://aweme.snssdk.com/aweme/v1/play/?video_id={vid}&improve_bitrate=1&ratio=1080p", what="non-watermarked video")
+content = download(f"https://aweme.snssdk.com/aweme/v1/play/?video_id={vid}&h265=1", what="non-watermarked video")
 if output_file == None:
     output = f"{vid}.mp4"
 else:
