@@ -7,7 +7,10 @@ import json
 import re
 import requests
 import sys
-from tqdm import tqdm
+try:
+    from tqdm import tqdm
+except ImportError:
+    print("could not load tqdm")
 import io
 
 
@@ -28,12 +31,16 @@ def download(url, what=None):
     total_size = int(r.headers.get('content-length', 0))
     block_size = 1024
 
-    t = tqdm(total=total_size, unit='iB', unit_scale=True)
+    if 'tqdm' in sys.modules:
+        t = tqdm(total=total_size, unit='iB', unit_scale=True)
     f = io.BytesIO()
     for data in r.iter_content(block_size):
-        t.update(len(data))
+        if 'tqdm' in sys.modules:
+            t.update(len(data))
         f.write(data)
-    t.close()
+
+    if 'tqdm' in sys.modules:
+        t.close()
 
     f.seek(0)
     return f.read()
