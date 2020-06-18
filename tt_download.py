@@ -15,7 +15,7 @@ import io
 
 
 HEADERS = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:74.0) Gecko/20100101 Firefox/74.1",
+        "User-Agent": "x",
         }
 
 
@@ -84,6 +84,8 @@ video_url = json.loads(match.group('json'))['props']['pageProps']['videoData']['
 
 # get non-watermarked url
 content = download(video_url, what="watermarked video")
+with open("test.mp4", "wb") as f:
+    f.write(content)
 vid_pos = content.find(b'vid:')
 if vid_pos == -1:
     print("Could not extract vid")
@@ -91,7 +93,8 @@ if vid_pos == -1:
 vid = content[vid_pos+4 : vid_pos + 36].decode("utf-8")
 
 # download non-watermarked file
-content = download(f"https://api2.musical.ly/aweme/v1/playwm/?video_id={vid}&improve_bitrate=1&ratio=1080p", what="non-watermarked video")
+url = f"https://api2-16-h2.musical.ly/aweme/v1/play/?video_id={vid}&h265=1&vr_type=0&is_play_url=1&source=PackSourceEnum_PUBLISH&media_type=4&"
+content = download(url, what="non-watermarked video")
 if output_file == None:
     output = f"{vid}.mp4"
 else:
