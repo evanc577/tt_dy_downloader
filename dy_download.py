@@ -75,22 +75,22 @@ else:
         output_file = None
 
 # find douyin id
-url_regex = r'https?:\/\/(www\.)?iesdouyin.com\/share\/video\/(?P<douyin_id>\d+)'
+url_regex = r'https?:\/\/(www\.)?iesdouyin.com\/share\/video\/(?P<item_id>\d+)'
 match = re.search(url_regex, url)
 if match is not None:
-    douyin_id = match.group('douyin_id')
+    item_id = match.group('item_id')
 else:
     content = download(url, what="webpage", allow_redirects=False)
     match = re.search(url_regex, content.decode())
     if match is not None:
-        douyin_id = match.group('douyin_id')
+        item_id = match.group('item_id')
     else:
         print('could not find video')
         sys.exit(1)
 
 # find video id
-video1_url = f'https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids={douyin_id}'
-content = download(video1_url, what="webpage", allow_redirects=True)
+video1_url = f'https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids={item_id}'
+content = download(video1_url, what="webpage")
 vid = json.loads(content.decode())['item_list'][0]['video']['vid']
 
 # download non-watermarked file
