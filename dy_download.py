@@ -19,11 +19,11 @@ HEADERS = {
         }
 
 
-def download(url, what=None):
+def download(url, what=None, allow_redirects=True):
     if what is not None:
         print(f"Downloading {what}...")
 
-    r = requests.get(url, headers=HEADERS, stream=True)
+    r = requests.get(url, headers=HEADERS, stream=True, allow_redirects=allow_redirects)
     if not r.ok:
         print(f"could not download {what}")
         sys.exit(1)
@@ -74,22 +74,24 @@ else:
     if output_file == "":
         output_file = None
 
-# find video url (watermarked)
-content = download(url, what="webpage")
-regex = r'playAddr: "(?P<url>.+?)"'
-match = re.search(regex, content.decode())
-if match is None:
-    print("Could not find video")
-    sys.exit(1)
-video_url = match.group('url')
+# find douyin id
+url_regex = r'https?:\/\/(www\.)?iesdouyin.com\/share\/video\/(?P<douyin_id>\d+)'
+match = re.search(url_regex, url)
+if match is not None:
+    douyin_id = match.group('douyin_id')
+else:
+    content = download(url, what="webpage", allow_redirects=False)
+    match = re.search(url_regex, content.decode())
+    if match is not None:
+        douyin_id = match.group('douyin_id')
+    else:
+        print('could not find video')
+        sys.exit(1)
 
-# get non-watermarked url
-content = download(video_url, what="watermarked video")
-vid_pos = content.find(b'vid:')
-if vid_pos == -1:
-    print("Could not extract vid")
-    sys.exit(1)
-vid = content[vid_pos+4 : vid_pos+36].decode("utf-8")
+# find video id
+video1_url = f'https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids={douyin_id}'
+content = download(video1_url, what="webpage", allow_redirects=True)
+vid = json.loads(content.decode())['item_list'][0]['video']['vid']
 
 # download non-watermarked file
 content = download(f"https://aweme.snssdk.com/aweme/v1/play/?video_id={vid}&h265=1", what="non-watermarked video")
