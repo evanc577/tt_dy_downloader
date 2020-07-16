@@ -84,8 +84,6 @@ video_url = json.loads(match.group('json'))['props']['pageProps']['videoData']['
 
 # get non-watermarked url
 content = download(video_url, what="watermarked video")
-with open("test.mp4", "wb") as f:
-    f.write(content)
 vid_pos = content.find(b'vid:')
 if vid_pos == -1:
     print("Could not extract vid")
