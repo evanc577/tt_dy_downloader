@@ -12,6 +12,7 @@ try:
 except ImportError:
     print("could not load tqdm")
 import io
+from datetime import datetime
 
 
 HEADERS = {
@@ -81,12 +82,22 @@ if match is None:
     print("Could not find video")
     sys.exit(1)
 video_url = json.loads(match.group('json'))['props']['pageProps']['videoData']['itemInfos']['video']['urls'][0]
+print(video_url)
 
 # get non-watermarked url
 content = download(video_url, what="watermarked video")
 vid_pos = content.find(b'vid:')
 if vid_pos == -1:
     print("Could not extract vid")
+    if output_file == None:
+        now = datetime.now()
+        dt_string = now.strftime("%Y-%m-%d-%H-%M-%S")
+        output = f"video_{dt_string}.mp4"
+    else:
+        output = output_file
+    with open(output, "wb") as f:
+        f.write(content)
+    print(f"Watermarked(?) video written to {output}")
     sys.exit(1)
 vid = content[vid_pos+4 : vid_pos + 36].decode("utf-8")
 
